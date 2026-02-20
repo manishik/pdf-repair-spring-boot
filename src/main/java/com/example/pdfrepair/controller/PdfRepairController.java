@@ -38,8 +38,9 @@ public class PdfRepairController {
 
         byte[] fileBytes = Files.readAllBytes(repaired.toPath());
 
+        String headerValue = "attachment; filename=\"" + "Repaired-" + repaired.getName() + "\"";
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=repaired.pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
                 .contentType(MediaType.APPLICATION_PDF)
                 .contentLength(fileBytes.length)
                 .body(new InputStreamResource(new ByteArrayInputStream(fileBytes)));
@@ -52,11 +53,11 @@ public class PdfRepairController {
         log.info("Repair Request: {}", repairRequest);
         MultipartFile multipartFile = repairRequest.getFile();
         CompletableFuture<byte[]> completableFuture = pdfRepairService.repairPdfAsync(repairRequest.getFile());
-        return completableFuture.thenApply(bytes -> buildPdfResp(bytes, multipartFile.getOriginalFilename(),"Repaired-")).join();
+        return completableFuture.thenApply(bytes -> buildPdfResp(bytes, "Repaired-", multipartFile.getOriginalFilename())).join();
     }
 
-    public ResponseEntity<InputStreamResource> buildPdfResp(byte[] fileBytes, String baseFileName, String prefix) {
-        String headerValue = "attachment; filename=\"" + prefix + baseFileName + "\"";
+    public ResponseEntity<InputStreamResource> buildPdfResp(byte[] fileBytes, String prefix, String fileName) {
+        String headerValue = "attachment; filename=\"" + prefix + fileName + "\"";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
                 .contentType(MediaType.APPLICATION_PDF)

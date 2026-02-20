@@ -17,8 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -30,8 +28,8 @@ public class PdfRepairService {
             File inputPdf = convertMultipartFileToFile(multipartFile);
             log.info("Inside repairPdf()");
             log.info("Input PDF Absolute Path = {}", inputPdf.getAbsolutePath());
-            File repairedPDF = createTempPdfFromExisting(multipartFile);
-            log.info("Repaired PDF Absolute Path = {}", repairedPDF.getAbsolutePath());
+            File tempPdfFile = createTempPdfFromExisting(multipartFile);
+            log.info("Repaired PDF Absolute Path = {}", tempPdfFile.getAbsolutePath());
 
             PDDocument pdDocumentInput = PDDocument.load(inputPdf);
             PDDocument pdDocumentOutput = new PDDocument();
@@ -45,11 +43,11 @@ public class PdfRepairService {
                 contentStream.drawImage(JPEGFactory.createFromImage(pdDocumentOutput, bim, 0.9f), 0, 0);
                 contentStream.close();
             }
-            pdDocumentOutput.save(repairedPDF);
+            pdDocumentOutput.save(tempPdfFile);
             pdDocumentOutput.close();
-            return repairedPDF;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return tempPdfFile;
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
         }
     }
 
@@ -65,10 +63,10 @@ public class PdfRepairService {
         File convFile = new File(multipartFile.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile)) {
             fos.write(multipartFile.getBytes());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (FileNotFoundException fileNotFoundException) {
+            throw new RuntimeException(fileNotFoundException);
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
         }
         return convFile;
     }
@@ -76,8 +74,9 @@ public class PdfRepairService {
     public File createTempPdfFromExisting(MultipartFile multipartFile) throws IOException {
         String resourcesPath = System.getProperty("user.dir") + "/target";
         File targetDir = new File(resourcesPath);
-        File tempFile = File.createTempFile(multipartFile.getOriginalFilename(), "", targetDir);
+        File tempFile = new File(targetDir, multipartFile.getOriginalFilename());
         multipartFile.transferTo(tempFile);
+        tempFile.deleteOnExit();
         return tempFile;
     }
 }
