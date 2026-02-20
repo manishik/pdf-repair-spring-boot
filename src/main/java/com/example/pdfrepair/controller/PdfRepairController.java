@@ -34,7 +34,7 @@ public class PdfRepairController {
     public ResponseEntity<InputStreamResource> repairSync(@ModelAttribute("file") RepairRequest repairRequest) throws IOException {
         log.info("Inside repairSync()");
         log.info("Repair Request: {}", repairRequest);
-        File repaired = pdfRepairService.repairPdf(repairRequest.getFile());
+        File repaired = pdfRepairService.repairPdfSync(repairRequest.getFile());
 
         byte[] fileBytes = Files.readAllBytes(repaired.toPath());
 

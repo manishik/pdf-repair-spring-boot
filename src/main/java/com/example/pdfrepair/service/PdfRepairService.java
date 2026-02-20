@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class PdfRepairService {
 
-    public File repairPdf(MultipartFile multipartFile) {
+    public File repairPdfSync(MultipartFile multipartFile) {
         try {
             File inputPdf = convertMultipartFileToFile(multipartFile);
             log.info("Inside repairPdf()");
@@ -53,7 +53,7 @@ public class PdfRepairService {
 
     @Async("pdfExecutor")
     public CompletableFuture<byte[]> repairPdfAsync(MultipartFile multipartFile) throws IOException {
-        File repairedFile = repairPdf(multipartFile);
+        File repairedFile = repairPdfSync(multipartFile);
         byte[] fileBytes = Files.readAllBytes(repairedFile.toPath());
         return CompletableFuture.completedFuture(fileBytes);
     }
