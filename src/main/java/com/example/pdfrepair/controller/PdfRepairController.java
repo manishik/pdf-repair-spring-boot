@@ -1,7 +1,7 @@
 package com.example.pdfrepair.controller;
 
 import com.example.pdfrepair.service.PdfRepairService;
-import dto.RepairRequest;
+import com.example.pdfrepair.dto.RepairRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
