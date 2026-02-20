@@ -52,11 +52,11 @@ public class PdfRepairController {
         log.info("Repair Request: {}", repairRequest);
         MultipartFile multipartFile = repairRequest.getFile();
         CompletableFuture<byte[]> completableFuture = pdfRepairService.repairPdfAsync(repairRequest.getFile());
-        return completableFuture.thenApply(bytes -> buildPdfResp(bytes, multipartFile.getOriginalFilename(),"-repaired.pdf")).join();
+        return completableFuture.thenApply(bytes -> buildPdfResp(bytes, multipartFile.getOriginalFilename(),"Repaired-")).join();
     }
 
-    public ResponseEntity<InputStreamResource> buildPdfResp(byte[] fileBytes, String baseFileName, String suffix) {
-        String headerValue = "attachment; filename=\"" + baseFileName + "." + suffix + "\"";
+    public ResponseEntity<InputStreamResource> buildPdfResp(byte[] fileBytes, String baseFileName, String prefix) {
+        String headerValue = "attachment; filename=\"" + prefix + baseFileName + "\"";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
                 .contentType(MediaType.APPLICATION_PDF)

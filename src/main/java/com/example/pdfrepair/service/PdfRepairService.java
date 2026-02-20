@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -28,7 +30,7 @@ public class PdfRepairService {
             File inputPdf = convertMultipartFileToFile(multipartFile);
             log.info("Inside repairPdf()");
             log.info("Input PDF Absolute Path = {}", inputPdf.getAbsolutePath());
-            File repairedPDF = new File(inputPdf.getParent(), inputPdf.getName() + "-repaired.pdf");
+            File repairedPDF = createTempPdfFromExisting(multipartFile);
             log.info("Repaired PDF Absolute Path = {}", repairedPDF.getAbsolutePath());
 
             PDDocument pdDocumentInput = PDDocument.load(inputPdf);
@@ -69,5 +71,13 @@ public class PdfRepairService {
             throw new RuntimeException(e);
         }
         return convFile;
+    }
+
+    public File createTempPdfFromExisting(MultipartFile multipartFile) throws IOException {
+        String resourcesPath = System.getProperty("user.dir") + "/target";
+        File targetDir = new File(resourcesPath);
+        File tempFile = File.createTempFile(multipartFile.getOriginalFilename(), "", targetDir);
+        multipartFile.transferTo(tempFile);
+        return tempFile;
     }
 }
